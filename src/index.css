@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply font-sans text-slate-800 antialiased;
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #ffe6f3 0%, transparent 55%),
+      radial-gradient(1000px 500px at 100% 0%, #e7e6ff 0%, transparent 50%),
+      radial-gradient(900px 700px at 50% 120%, #fff0d6 0%, transparent 55%),
+      linear-gradient(180deg, #fdf4ff 0%, #f5f3ff 50%, #fff7ed 100%);
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5
+           font-bold transition-all duration-200 active:scale-95 disabled:opacity-50
+           disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn text-white shadow-pop
+           bg-gradient-to-r from-grape via-bubble to-tangerine
+           hover:brightness-110 hover:-translate-y-0.5;
+  }
+  .btn-ghost {
+    @apply btn bg-white/70 text-grape ring-1 ring-grape/20 backdrop-blur
+           hover:bg-white hover:ring-grape/40;
+  }
+  .btn-danger {
+    @apply btn bg-rose-500 text-white hover:bg-rose-600;
+  }
+  .field-label {
+    @apply mb-1 block text-sm font-bold text-slate-600;
+  }
+  .field {
+    @apply w-full rounded-xl border-2 border-slate-200 bg-white/80 px-3.5 py-2.5
+           font-semibold text-slate-800 outline-none transition
+           focus:border-grape focus:ring-4 focus:ring-grape/15;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold;
+  }
+}
+
+/* Recolour the family-tree connector lines (rendered as inline-styled <i>). */
+.crazy-tree i {
+  background-color: #c4b5fd !important;
+  border-radius: 9999px;
+}
+
+/* Friendly scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.35);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 58, 237, 0.55);
+}

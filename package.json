@@ -1,0 +1,30 @@
+{
+  "name": "crazy-family",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Crazy Family — a vibrant, interactive family tree website.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-family-tree": "^3.2.0",
+    "react-router-dom": "^6.30.4",
+    "relatives-tree": "^3.2.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.5.2",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21"
+  }
+}
