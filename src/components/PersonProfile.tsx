@@ -80,7 +80,7 @@ export default function PersonProfile({
         </div>
 
         {person.bio && (
-          <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm font-semibold leading-relaxed text-slate-600">
+          <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm font-semibold leading-relaxed text-slate-600 dark:bg-slate-800 dark:text-slate-300">
             {person.bio}
           </p>
         )}
@@ -99,11 +99,11 @@ export default function PersonProfile({
                       <button
                         key={rel.id}
                         onClick={() => onNavigate(rel.id)}
-                        className="flex items-center gap-2 rounded-full bg-white py-1 pl-1 pr-3 shadow-card ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-pop"
+                        className="flex items-center gap-2 rounded-full bg-white py-1 pl-1 pr-3 shadow-card ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-pop dark:bg-slate-800 dark:ring-slate-700"
                       >
                         <Avatar person={rel} size={32} />
                         <span className="text-left leading-tight">
-                          <span className="block text-sm font-bold text-slate-700">
+                          <span className="block text-sm font-bold text-slate-700 dark:text-slate-100">
                             {rel.firstName} {rel.lastName}
                           </span>
                           <span
@@ -119,7 +119,7 @@ export default function PersonProfile({
               ),
           )}
           {groups.every((g) => g.people.length === 0) && (
-            <p className="rounded-2xl bg-amber-50 p-4 text-center text-sm font-semibold text-amber-700">
+            <p className="rounded-2xl bg-amber-50 p-4 text-center text-sm font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
               No relatives linked yet. {canEdit ? 'Edit this person to connect their family.' : ''}
             </p>
           )}
@@ -127,7 +127,7 @@ export default function PersonProfile({
 
         {/* Actions */}
         {canEdit && (
-          <div className="mt-6 flex flex-wrap items-center justify-end gap-3 border-t border-slate-100 pt-5">
+          <div className="mt-6 flex flex-wrap items-center justify-end gap-3 border-t border-slate-100 pt-5 dark:border-slate-700">
             {confirmDelete ? (
               <>
                 <span className="mr-auto text-sm font-bold text-rose-600">
@@ -165,11 +165,11 @@ export default function PersonProfile({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-slate-50 px-3 py-2 text-center">
-      <p className="text-[11px] font-extrabold uppercase tracking-wide text-slate-400">
+    <div className="rounded-2xl bg-slate-50 px-3 py-2 text-center dark:bg-slate-800">
+      <p className="text-[11px] font-extrabold uppercase tracking-wide text-slate-400 dark:text-slate-500">
         {label}
       </p>
-      <p className="mt-0.5 truncate text-sm font-bold text-slate-700" title={value}>
+      <p className="mt-0.5 truncate text-sm font-bold text-slate-700 dark:text-slate-100" title={value}>
         {value}
       </p>
     </div>

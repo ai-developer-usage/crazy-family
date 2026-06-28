@@ -16,11 +16,11 @@ export default function PersonCard({ person, onSelect }: Props) {
   return (
     <button
       onClick={() => onSelect(person.id)}
-      className={`group flex w-full items-center gap-4 rounded-2xl bg-white/85 p-4 text-left shadow-card ring-2 backdrop-blur transition-all duration-200 hover:-translate-y-1 hover:shadow-pop ${theme.ring}`}
+      className={`group flex w-full items-center gap-4 rounded-2xl bg-white/85 p-4 text-left shadow-card ring-2 backdrop-blur transition-all duration-200 hover:-translate-y-1 hover:shadow-pop dark:bg-slate-800/85 ${theme.ring}`}
     >
       <Avatar person={person} size={72} />
       <div className="min-w-0 flex-1">
-        <p className="truncate font-display text-lg font-bold text-slate-800">
+        <p className="truncate font-display text-lg font-bold text-slate-800 dark:text-slate-100">
           {person.firstName} {person.lastName}
         </p>
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
@@ -32,17 +32,17 @@ export default function PersonCard({ person, onSelect }: Props) {
           )}
         </div>
         {span && (
-          <p className="mt-1.5 text-sm font-semibold text-slate-500">
+          <p className="mt-1.5 text-sm font-semibold text-slate-500 dark:text-slate-400">
             {span}
             {age != null && (
-              <span className="text-slate-400">
+              <span className="text-slate-400 dark:text-slate-500">
                 {' '}· {age} yr{age === 1 ? '' : 's'}
               </span>
             )}
           </p>
         )}
         {person.birthPlace && (
-          <p className="truncate text-xs font-semibold text-slate-400">
+          <p className="truncate text-xs font-semibold text-slate-400 dark:text-slate-500">
             📍 {person.birthPlace}
           </p>
         )}

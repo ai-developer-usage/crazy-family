@@ -1,3 +1,5 @@
+import type { Theme } from '../hooks/useTheme';
+
 type View = 'tree' | 'grid';
 
 interface Props {
@@ -9,6 +11,8 @@ interface Props {
   canEdit: boolean;
   isDemo: boolean;
   userEmail: string | null;
+  theme: Theme;
+  onToggleTheme: () => void;
   onAdd: () => void;
   onSignIn: () => void;
   onSignOut: () => void;
@@ -23,12 +27,14 @@ export default function Header({
   canEdit,
   isDemo,
   userEmail,
+  theme,
+  onToggleTheme,
   onAdd,
   onSignIn,
   onSignOut,
 }: Props) {
   return (
-    <header className="sticky top-0 z-30 border-b border-white/40 bg-white/60 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-white/40 bg-white/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/70">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-2">
           <span className="text-3xl">🌳</span>
@@ -43,7 +49,7 @@ export default function Header({
         </div>
 
         {/* View toggle */}
-        <div className="ml-auto flex rounded-full bg-white/70 p-1 ring-1 ring-grape/15">
+        <div className="ml-auto flex rounded-full bg-white/70 p-1 ring-1 ring-grape/15 dark:bg-slate-800/70 dark:ring-violet-400/20">
           {(['tree', 'grid'] as View[]).map((v) => (
             <button
               key={v}
@@ -51,13 +57,23 @@ export default function Header({
               className={`rounded-full px-4 py-1.5 text-sm font-bold capitalize transition ${
                 view === v
                   ? 'bg-gradient-to-r from-grape to-bubble text-white shadow'
-                  : 'text-slate-500 hover:text-grape'
+                  : 'text-slate-500 hover:text-grape dark:text-slate-400 dark:hover:text-violet-300'
               }`}
             >
               {v === 'tree' ? '🌳 Tree' : '🗂 Grid'}
             </button>
           ))}
         </div>
+
+        {/* Light / dark toggle */}
+        <button
+          onClick={onToggleTheme}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          aria-label="Toggle dark mode"
+          className="grid h-10 w-10 place-items-center rounded-full bg-white/70 text-lg ring-1 ring-grape/15 transition hover:scale-105 dark:bg-slate-800/70 dark:ring-violet-400/20"
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
 
         <input
           value={search}

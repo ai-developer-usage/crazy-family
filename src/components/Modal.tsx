@@ -34,7 +34,7 @@ export default function Modal({
       onMouseDown={onClose}
     >
       <div
-        className={`my-auto w-full ${maxWidth} animate-pop-in rounded-3xl bg-white shadow-pop`}
+        className={`my-auto w-full ${maxWidth} animate-pop-in rounded-3xl bg-white shadow-pop dark:bg-slate-900`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         {children}

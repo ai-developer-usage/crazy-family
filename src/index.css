@@ -9,7 +9,7 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply font-sans text-slate-800 antialiased;
+    @apply font-sans text-slate-800 antialiased transition-colors duration-300;
     margin: 0;
     min-height: 100vh;
     background:
@@ -17,6 +17,15 @@
       radial-gradient(1000px 500px at 100% 0%, #e7e6ff 0%, transparent 50%),
       radial-gradient(900px 700px at 50% 120%, #fff0d6 0%, transparent 55%),
       linear-gradient(180deg, #fdf4ff 0%, #f5f3ff 50%, #fff7ed 100%);
+    background-attachment: fixed;
+  }
+  html.dark body {
+    @apply text-slate-100;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #3b1d4e 0%, transparent 55%),
+      radial-gradient(1000px 500px at 100% 0%, #1e2350 0%, transparent 50%),
+      radial-gradient(900px 700px at 50% 120%, #3a2410 0%, transparent 55%),
+      linear-gradient(180deg, #0f1021 0%, #131129 50%, #1a1326 100%);
     background-attachment: fixed;
   }
 }
@@ -34,18 +43,22 @@
   }
   .btn-ghost {
     @apply btn bg-white/70 text-grape ring-1 ring-grape/20 backdrop-blur
-           hover:bg-white hover:ring-grape/40;
+           hover:bg-white hover:ring-grape/40
+           dark:bg-slate-800/70 dark:text-violet-300 dark:ring-violet-400/25
+           dark:hover:bg-slate-800 dark:hover:ring-violet-400/50;
   }
   .btn-danger {
     @apply btn bg-rose-500 text-white hover:bg-rose-600;
   }
   .field-label {
-    @apply mb-1 block text-sm font-bold text-slate-600;
+    @apply mb-1 block text-sm font-bold text-slate-600 dark:text-slate-300;
   }
   .field {
     @apply w-full rounded-xl border-2 border-slate-200 bg-white/80 px-3.5 py-2.5
            font-semibold text-slate-800 outline-none transition
-           focus:border-grape focus:ring-4 focus:ring-grape/15;
+           focus:border-grape focus:ring-4 focus:ring-grape/15
+           dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-100
+           dark:placeholder:text-slate-500;
   }
   .chip {
     @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold;
@@ -56,6 +69,9 @@
 .crazy-tree i {
   background-color: #c4b5fd !important;
   border-radius: 9999px;
+}
+html.dark .crazy-tree i {
+  background-color: #7c5cc4 !important;
 }
 
 /* Friendly scrollbars */

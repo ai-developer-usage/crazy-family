@@ -4,8 +4,11 @@ import type { Person } from '../types';
 import { indexById, toTreeNodes, defaultRootId } from '../utils/relations';
 import FamilyNode from './FamilyNode';
 
-const NODE_WIDTH = 150;
-const NODE_HEIGHT = 170;
+// The node cell is the layout unit: making it larger than the card inside
+// (140px wide, see FamilyNode) spreads the tree out with generous gaps and
+// lengthens the connector lines to match.
+const NODE_WIDTH = 220;
+const NODE_HEIGHT = 240;
 
 interface Props {
   people: Person[];
@@ -30,7 +33,7 @@ export default function TreeView({ people, onSelect }: Props) {
   }
 
   return (
-    <div className="w-full overflow-auto rounded-3xl bg-white/40 p-6 ring-1 ring-white/60">
+    <div className="w-full overflow-auto rounded-3xl bg-white/40 p-6 ring-1 ring-white/60 dark:bg-slate-900/40 dark:ring-white/10">
       <div className="mx-auto w-max">
         <ReactFamilyTree
           nodes={nodes}

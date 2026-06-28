@@ -253,7 +253,7 @@ export default function PersonForm({
               Add more people first to link partners.
             </p>
           ) : (
-            <div className="flex max-h-36 flex-wrap gap-2 overflow-y-auto rounded-xl bg-slate-50 p-3">
+            <div className="flex max-h-36 flex-wrap gap-2 overflow-y-auto rounded-xl bg-slate-50 p-3 dark:bg-slate-800">
               {others.map((p) => {
                 const on = draft.spouseIds.includes(p.id);
                 return (
@@ -264,7 +264,7 @@ export default function PersonForm({
                     className={`chip ring-1 transition ${
                       on
                         ? 'bg-grape text-white ring-grape'
-                        : 'bg-white text-slate-600 ring-slate-200 hover:ring-grape/40'
+                        : 'bg-white text-slate-600 ring-slate-200 hover:ring-grape/40 dark:bg-slate-700 dark:text-slate-200 dark:ring-slate-600'
                     }`}
                   >
                     {on ? '✓ ' : ''}
@@ -277,18 +277,18 @@ export default function PersonForm({
         </div>
 
         {/* Siblings & children note */}
-        <p className="rounded-xl bg-violet-50 px-4 py-3 text-xs font-semibold text-violet-600">
+        <p className="rounded-xl bg-violet-50 px-4 py-3 text-xs font-semibold text-violet-600 dark:bg-violet-950/40 dark:text-violet-300">
           💡 Siblings and children are figured out automatically from parents —
           just set each person’s father and mother and the rest connects itself.
         </p>
 
         {error && (
-          <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600">
+          <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600 dark:bg-rose-950/40 dark:text-rose-300">
             {error}
           </p>
         )}
 
-        <div className="flex justify-end gap-3 border-t border-slate-100 pt-5">
+        <div className="flex justify-end gap-3 border-t border-slate-100 pt-5 dark:border-slate-700">
           <button type="button" className="btn-ghost" onClick={onClose}>
             Cancel
           </button>

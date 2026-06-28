@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useData } from './context/DataContext';
+import { useTheme } from './hooks/useTheme';
 import { fullName, byBirthDate } from './utils/relations';
 import type { Person } from './types';
 import Header from './components/Header';
@@ -27,6 +28,7 @@ export default function App() {
     signOut,
   } = useData();
 
+  const { theme, toggle: toggleTheme } = useTheme();
   const [view, setView] = useState<View>('tree');
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -81,6 +83,8 @@ export default function App() {
         canEdit={canEdit}
         isDemo={isDemo}
         userEmail={userEmail}
+        theme={theme}
+        onToggleTheme={toggleTheme}
         onAdd={openAdd}
         onSignIn={() => setLoginOpen(true)}
         onSignOut={signOut}
@@ -211,8 +215,8 @@ function CenterNote({
     <div
       className={`mx-auto mt-10 max-w-md rounded-3xl p-8 text-center font-display text-lg font-bold ${
         tone === 'error'
-          ? 'bg-rose-50 text-rose-600'
-          : 'bg-white/60 text-slate-500'
+          ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-300'
+          : 'bg-white/60 text-slate-500 dark:bg-slate-800/60 dark:text-slate-300'
       }`}
     >
       {children}
@@ -228,12 +232,12 @@ function EmptyState({
   onAdd: () => void;
 }) {
   return (
-    <div className="mx-auto mt-10 max-w-md rounded-3xl bg-white/70 p-10 text-center shadow-card">
+    <div className="mx-auto mt-10 max-w-md rounded-3xl bg-white/70 p-10 text-center shadow-card dark:bg-slate-800/70">
       <div className="text-6xl">🌱</div>
-      <h2 className="mt-3 font-display text-2xl font-extrabold text-slate-700">
+      <h2 className="mt-3 font-display text-2xl font-extrabold text-slate-700 dark:text-slate-100">
         Your family tree is empty
       </h2>
-      <p className="mt-2 font-semibold text-slate-500">
+      <p className="mt-2 font-semibold text-slate-500 dark:text-slate-400">
         {canEdit
           ? 'Plant the first seed — add a family member to get started.'
           : 'Sign in to start adding your family.'}
