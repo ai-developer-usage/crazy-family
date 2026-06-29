@@ -118,13 +118,43 @@ export function toTreeNodes(people: Person[]): RTNode[] {
 }
 
 /**
- * Pick a sensible root for the tree: the oldest person who has no parents
- * recorded (a top-of-tree ancestor), falling back to the first person.
+ * Pick the best root for the tree: the parent-less person (top-of-tree
+ * ancestor) with the MOST descendants — i.e. the apex everyone descends from.
+ * relatives-tree only fully expands the root's own descendant branches, so a
+ * poor root (e.g. someone who married in) would hide whole sides of the family.
+ * Counting descendants — rather than guessing by birth date — guarantees we
+ * root at the true apex even when dates are missing. Ties break by birth date.
  */
 export function defaultRootId(people: Person[]): string | undefined {
   if (people.length === 0) return undefined;
-  const roots = people
-    .filter((p) => !p.fatherId && !p.motherId)
-    .sort(byBirthDate);
-  return (roots[0] ?? people[0]).id;
+
+  // parentId -> list of child ids
+  const childrenBy = new Map<string, string[]>();
+  for (const p of people) {
+    for (const pid of [p.fatherId, p.motherId]) {
+      if (!pid) continue;
+      const list = childrenBy.get(pid);
+      if (list) list.push(p.id);
+      else childrenBy.set(pid, [p.id]);
+    }
+  }
+
+  const descendantCount = (id: string): number => {
+    const seen = new Set<string>();
+    const stack = [...(childrenBy.get(id) ?? [])];
+    while (stack.length) {
+      const c = stack.pop()!;
+      if (seen.has(c)) continue;
+      seen.add(c);
+      for (const gc of childrenBy.get(c) ?? []) stack.push(gc);
+    }
+    return seen.size;
+  };
+
+  const parentless = people.filter((p) => !p.fatherId && !p.motherId);
+  const candidates = parentless.length > 0 ? parentless : people;
+
+  return candidates
+    .map((p) => ({ p, count: descendantCount(p.id) }))
+    .sort((a, b) => b.count - a.count || byBirthDate(a.p, b.p))[0].p.id;
 }
