@@ -161,30 +161,16 @@ export default function TreeView({ people, onSelect }: Props) {
 
   if (people.length === 0 || !rootId) return null;
 
-  const pct = Math.round(zoom * 100);
-  const stepZoom = (delta: number) => applyZoom(zoomRef.current + delta);
-
   return (
     <div className="relative">
-      {/* Zoom toolbar */}
-      <div className="absolute right-2 top-2 z-10 flex items-center gap-0.5 rounded-full bg-white/90 p-1 shadow-card ring-1 ring-grape/15 backdrop-blur dark:bg-slate-800/90 dark:ring-violet-400/20">
-        <ZoomBtn label="−" title="Zoom out" onClick={() => stepZoom(-0.15)} disabled={zoom <= MIN_ZOOM} />
-        <button
-          onClick={() => applyZoom(1)}
-          title="Reset to 100%"
-          className="min-w-[3rem] rounded-full px-1 py-1 text-sm font-bold text-slate-600 hover:bg-grape/10 dark:text-slate-300"
-        >
-          {pct}%
-        </button>
-        <ZoomBtn label="+" title="Zoom in" onClick={() => stepZoom(0.15)} disabled={zoom >= MAX_ZOOM} />
-        <button
-          onClick={fitToView}
-          title="Fit the whole family in view"
-          className="rounded-full px-2.5 py-1.5 text-sm font-bold text-grape hover:bg-grape/10 dark:text-violet-300"
-        >
-          ⤢<span className="ml-1 hidden sm:inline">Fit</span>
-        </button>
-      </div>
+      {/* Fit-to-view button */}
+      <button
+        onClick={fitToView}
+        title="Fit the whole family in view"
+        className="absolute right-2 top-2 z-10 rounded-full bg-white/90 px-3.5 py-2 text-sm font-bold text-grape shadow-card ring-1 ring-grape/15 backdrop-blur transition hover:bg-white dark:bg-slate-800/90 dark:text-violet-300 dark:ring-violet-400/20"
+      >
+        ⤢<span className="ml-1 hidden sm:inline">Fit</span>
+      </button>
 
       {/* Mobile gesture hint */}
       <div className="pointer-events-none absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-slate-900/55 px-3 py-1 text-[11px] font-bold text-white sm:hidden">
@@ -232,28 +218,5 @@ export default function TreeView({ people, onSelect }: Props) {
         </div>
       </div>
     </div>
-  );
-}
-
-function ZoomBtn({
-  label,
-  title,
-  onClick,
-  disabled,
-}: {
-  label: string;
-  title: string;
-  onClick: () => void;
-  disabled: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      title={title}
-      disabled={disabled}
-      className="grid h-9 w-9 place-items-center rounded-full text-xl font-bold text-slate-600 transition hover:bg-grape/10 disabled:opacity-40 dark:text-slate-300"
-    >
-      {label}
-    </button>
   );
 }
