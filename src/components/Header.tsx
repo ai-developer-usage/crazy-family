@@ -35,11 +35,11 @@ export default function Header({
 }: Props) {
   return (
     <header className="sticky top-0 z-30 border-b border-white/40 bg-white/60 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/70">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-6 sm:py-3">
         <div className="flex items-center gap-2">
-          <span className="text-3xl">🌳</span>
+          <span className="text-2xl sm:text-3xl">🌳</span>
           <div>
-            <h1 className="bg-gradient-to-r from-grape via-bubble to-tangerine bg-clip-text font-display text-2xl font-extrabold leading-none text-transparent">
+            <h1 className="bg-gradient-to-r from-grape via-bubble to-tangerine bg-clip-text font-display text-xl font-extrabold leading-none text-transparent sm:text-2xl">
               Crazy Family
             </h1>
             <p className="text-xs font-bold text-slate-400">
@@ -79,12 +79,16 @@ export default function Header({
           value={search}
           onChange={(e) => onSearch(e.target.value)}
           placeholder="🔍 Search family…"
-          className="field max-w-[200px] !py-2 !text-sm"
+          className="field order-last w-full !py-2 !text-sm sm:order-none sm:w-auto sm:max-w-[200px]"
         />
 
         {canEdit && (
-          <button className="btn-primary !px-4 !py-2 text-sm" onClick={onAdd}>
-            ＋ Add person
+          <button
+            className="btn-primary !px-3.5 !py-2 text-sm"
+            onClick={onAdd}
+            title="Add a family member"
+          >
+            ＋<span className="ml-1 hidden sm:inline">Add person</span>
           </button>
         )}
 

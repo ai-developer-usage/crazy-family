@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import ReactFamilyTree from 'react-family-tree';
 import type { Person } from '../types';
 import { indexById, toTreeNodes, defaultRootId } from '../utils/relations';
@@ -10,7 +17,7 @@ import FamilyNode from './FamilyNode';
 const NODE_WIDTH = 220;
 const NODE_HEIGHT = 240;
 
-const MIN_ZOOM = 0.2;
+const MIN_ZOOM = 0.15;
 const MAX_ZOOM = 2;
 const clamp = (n: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, n));
 
@@ -19,7 +26,7 @@ interface Props {
   onSelect: (id: string) => void;
 }
 
-/** Interactive, zoomable family tree built on relatives-tree. */
+/** Interactive, zoomable family tree — wheel/buttons on desktop, pinch on touch. */
 export default function TreeView({ people, onSelect }: Props) {
   const nodes = useMemo(() => toTreeNodes(people), [people]);
   const byId = useMemo(() => indexById(people), [people]);
@@ -28,31 +35,64 @@ export default function TreeView({ people, onSelect }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const treeRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
+  const zoomRef = useRef(1);
+  const pendingScroll = useRef<{ x: number; y: number } | null>(null);
   const [natural, setNatural] = useState({ w: 0, h: 0 });
   const didFit = useRef(false);
 
-  // Measure the tree's natural (unscaled) size so we can size the scroll area
-  // and compute a fit-to-screen zoom. transforms don't affect offset sizes.
+  // Measure the tree's natural (unscaled) size; transforms don't affect it.
   useEffect(() => {
     const el = treeRef.current;
     if (!el) return;
-    const measure = () =>
-      setNatural({ w: el.offsetWidth, h: el.offsetHeight });
+    const measure = () => setNatural({ w: el.offsetWidth, h: el.offsetHeight });
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
   }, [nodes]);
 
+  // Set zoom while keeping a focal point (in viewport coords) fixed on screen.
+  const applyZoom = useCallback(
+    (next: number, focalX?: number, focalY?: number) => {
+      const c = scrollRef.current;
+      const z = clamp(+next.toFixed(3));
+      if (c && natural.w) {
+        const fx = focalX ?? c.clientWidth / 2;
+        const fy = focalY ?? c.clientHeight / 2;
+        const old = zoomRef.current || 1;
+        const contentX = (c.scrollLeft + fx) / old;
+        const contentY = (c.scrollTop + fy) / old;
+        pendingScroll.current = { x: contentX * z - fx, y: contentY * z - fy };
+      }
+      zoomRef.current = z;
+      setZoom(z);
+    },
+    [natural],
+  );
+
+  // Apply the focal-corrected scroll after the resized layout commits.
+  useLayoutEffect(() => {
+    const c = scrollRef.current;
+    const p = pendingScroll.current;
+    if (c && p) {
+      c.scrollLeft = p.x;
+      c.scrollTop = p.y;
+      pendingScroll.current = null;
+    }
+  }, [zoom]);
+
   const fitToView = useCallback(() => {
     const c = scrollRef.current;
     if (!c || !natural.w || !natural.h) return;
-    const pad = 32;
+    const pad = 24;
     const z = Math.min(
       (c.clientWidth - pad) / natural.w,
       (c.clientHeight - pad) / natural.h,
     );
-    setZoom(clamp(Math.min(z, 1))); // never auto-enlarge past 100%
+    const next = clamp(Math.min(z, 1)); // never auto-enlarge past 100%
+    zoomRef.current = next;
+    pendingScroll.current = null;
+    setZoom(next);
   }, [natural]);
 
   // Auto-fit the whole tree into view the first time it's measured.
@@ -63,68 +103,104 @@ export default function TreeView({ people, onSelect }: Props) {
     }
   }, [natural, fitToView]);
 
-  // Ctrl/⌘ + mouse wheel to zoom (needs a non-passive listener to preventDefault).
+  // Ctrl/⌘ + wheel to zoom toward the cursor (desktop).
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
       if (!e.ctrlKey && !e.metaKey) return;
       e.preventDefault();
-      setZoom((z) => clamp(+(z - e.deltaY * 0.0015).toFixed(2)));
+      const r = el.getBoundingClientRect();
+      applyZoom(zoomRef.current - e.deltaY * 0.0015, e.clientX - r.left, e.clientY - r.top);
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
-  }, []);
+  }, [applyZoom]);
+
+  // Two-finger pinch to zoom toward the pinch midpoint (touch). One finger
+  // still pans via native scrolling (touch-action: pan-x pan-y below).
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    let startDist = 0;
+    let startZoom = 1;
+    let fx = 0;
+    let fy = 0;
+    let pinching = false;
+    const dist = (t: TouchList) =>
+      Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+
+    const onStart = (e: TouchEvent) => {
+      if (e.touches.length !== 2) return;
+      pinching = true;
+      startDist = dist(e.touches) || 1;
+      startZoom = zoomRef.current;
+      const r = el.getBoundingClientRect();
+      fx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+      fy = (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
+    };
+    const onMove = (e: TouchEvent) => {
+      if (!pinching || e.touches.length !== 2) return;
+      e.preventDefault();
+      applyZoom(startZoom * (dist(e.touches) / startDist), fx, fy);
+    };
+    const onEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) pinching = false;
+    };
+    el.addEventListener('touchstart', onStart, { passive: false });
+    el.addEventListener('touchmove', onMove, { passive: false });
+    el.addEventListener('touchend', onEnd);
+    el.addEventListener('touchcancel', onEnd);
+    return () => {
+      el.removeEventListener('touchstart', onStart);
+      el.removeEventListener('touchmove', onMove);
+      el.removeEventListener('touchend', onEnd);
+      el.removeEventListener('touchcancel', onEnd);
+    };
+  }, [applyZoom]);
 
   if (people.length === 0 || !rootId) return null;
 
   const pct = Math.round(zoom * 100);
+  const stepZoom = (delta: number) => applyZoom(zoomRef.current + delta);
 
   return (
     <div className="relative">
       {/* Zoom toolbar */}
-      <div className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-full bg-white/85 p-1 shadow-card ring-1 ring-grape/15 backdrop-blur dark:bg-slate-800/85 dark:ring-violet-400/20">
-        <ZoomBtn
-          label="−"
-          title="Zoom out"
-          onClick={() => setZoom((z) => clamp(+(z - 0.1).toFixed(2)))}
-          disabled={zoom <= MIN_ZOOM}
-        />
+      <div className="absolute right-2 top-2 z-10 flex items-center gap-0.5 rounded-full bg-white/90 p-1 shadow-card ring-1 ring-grape/15 backdrop-blur dark:bg-slate-800/90 dark:ring-violet-400/20">
+        <ZoomBtn label="−" title="Zoom out" onClick={() => stepZoom(-0.15)} disabled={zoom <= MIN_ZOOM} />
         <button
-          onClick={() => setZoom(1)}
+          onClick={() => applyZoom(1)}
           title="Reset to 100%"
-          className="min-w-[3.25rem] rounded-full px-2 py-1 text-sm font-bold text-slate-600 hover:bg-grape/10 dark:text-slate-300"
+          className="min-w-[3rem] rounded-full px-1 py-1 text-sm font-bold text-slate-600 hover:bg-grape/10 dark:text-slate-300"
         >
           {pct}%
         </button>
-        <ZoomBtn
-          label="+"
-          title="Zoom in"
-          onClick={() => setZoom((z) => clamp(+(z + 0.1).toFixed(2)))}
-          disabled={zoom >= MAX_ZOOM}
-        />
+        <ZoomBtn label="+" title="Zoom in" onClick={() => stepZoom(0.15)} disabled={zoom >= MAX_ZOOM} />
         <button
           onClick={fitToView}
           title="Fit the whole family in view"
-          className="rounded-full px-3 py-1 text-sm font-bold text-grape hover:bg-grape/10 dark:text-violet-300"
+          className="rounded-full px-2.5 py-1.5 text-sm font-bold text-grape hover:bg-grape/10 dark:text-violet-300"
         >
-          ⤢ Fit
+          ⤢<span className="ml-1 hidden sm:inline">Fit</span>
         </button>
+      </div>
+
+      {/* Mobile gesture hint */}
+      <div className="pointer-events-none absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-slate-900/55 px-3 py-1 text-[11px] font-bold text-white sm:hidden">
+        Pinch to zoom · drag to move
       </div>
 
       {/* Scroll / zoom viewport */}
       <div
         ref={scrollRef}
-        className="h-[72vh] w-full overflow-auto rounded-3xl bg-white/40 p-4 ring-1 ring-white/60 dark:bg-slate-900/40 dark:ring-white/10"
+        style={{ touchAction: 'pan-x pan-y' }}
+        className="h-[68vh] max-h-[760px] w-full overflow-auto overscroll-contain rounded-3xl bg-white/40 p-3 ring-1 ring-white/60 dark:bg-slate-900/40 dark:ring-white/10 sm:p-4"
       >
         <div style={{ width: natural.w * zoom, height: natural.h * zoom }} className="mx-auto">
           <div
             ref={treeRef}
-            style={{
-              transform: `scale(${zoom})`,
-              transformOrigin: '0 0',
-              width: 'max-content',
-            }}
+            style={{ transform: `scale(${zoom})`, transformOrigin: '0 0', width: 'max-content' }}
           >
             <ReactFamilyTree
               nodes={nodes}
@@ -175,7 +251,7 @@ function ZoomBtn({
       onClick={onClick}
       title={title}
       disabled={disabled}
-      className="grid h-8 w-8 place-items-center rounded-full text-lg font-bold text-slate-600 transition hover:bg-grape/10 disabled:opacity-40 dark:text-slate-300"
+      className="grid h-9 w-9 place-items-center rounded-full text-xl font-bold text-slate-600 transition hover:bg-grape/10 disabled:opacity-40 dark:text-slate-300"
     >
       {label}
     </button>

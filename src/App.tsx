@@ -90,7 +90,7 @@ export default function App() {
         onSignOut={signOut}
       />
 
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      <main className="mx-auto max-w-7xl px-2 py-4 sm:px-6 sm:py-6">
         {loading && <CenterNote>Loading your family… 🌱</CenterNote>}
 
         {error && (
